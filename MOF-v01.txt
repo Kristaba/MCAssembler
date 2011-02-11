@@ -1,0 +1,74 @@
+/***************************************************************************************
+  *                  MINIMALIST OBJECT FILE FORMAT DESCRIPTION
+  **************************************************************************************
+  * The file format used to store compiled-object informations is as small as possible
+  * because of the relativly small memory on a calculator.
+  * Data type used for the description :
+  * <byte>			1 byte data
+  * <int>			4 byte data (stored in big-endian convention)
+  * <string>		non-zero terminated ASCII string
+  * <string_0trmt>	C-type string (terminated by a 0x00)
+  * <array>{...}	0 or more repetitions of the data in braces
+  *
+  * The global structure of the file looks like :
+  *   [header][compiled_data][imported_symbols][exported_symbols]
+  *
+  *************
+  * HEADER
+  *************
+  * The header contain some globals informations, as the size of the parts or the format
+  * version.
+  * Its structure is currently :
+  *   ["MOF-0.1"][<int>compiled_size][<int>imported_size][<int>exported_size]
+  *
+  ********************
+  * COMPILED DATA
+  ********************
+  * This part is composed of the data of each sections used with a short description.
+  * Start by :
+  *   [<int>sections_number]
+  * For each section, the format is :
+  *   [<byte>name_size][<string>section_name][<int>relative_addr_number]
+  *			<array>{[<byte>address_section_id][<int>relative_address]}[<int>data_size][raw_data]
+  *
+  * The section_name is defined by the user/compiler, like .text or .rodata
+  * The relative_address array contain each position in this section where a section-relative address have to be converted
+  * into an absolute address. For example, considerate this asm code :
+  * .section ".text"
+  * .align 2
+  * MyFunction:
+  *   [...]
+  * .section ".rodata"
+  *	.align 4
+  * _MyFunctionAddress:
+  *   .long MyFunction
+  *
+  * In this case, _MyFunctionAddress is a position where a data (MyFunction label address) is section-relative, and need to
+  * be absolute (by adding the first address of the section ".text" in the final binary file)
+  *
+  *********************
+  * IMPORTED_SYMBOLS
+  *********************
+  * The Imported Symbols are the symbols used in the code, but defined (implicitly or
+  * explicitly) as "external". They will be resolved (or not) by the linker.
+  * The part start by :
+  *   [<int>symbols_number]
+  * Then, for each symbol, there is :
+  *   [<byte>name_size][<string>symbol_name][<int>occurences_number]<array>{[<byte>occurence_section_id][<int>occurence_position]}
+  * <array> size is occurences_number, and occurence_section_id corresponding to the N° of the 
+  * section where the symbol occurence is (for example, if COMPILED DATA contain in order .data
+  * and .text sections, the .text id is 1 and the .data id is 0).
+  *
+  *********************
+  * EXPORTED_SYMBOLS
+  *********************
+  * An Exported Symbol is a symbol that's explicitly or implicitly marked as "global",
+  * i.e. that must be visible by the other object files.
+  * This part start by :
+  *   [<int>symbols_number]
+  * Then, for each symbol, there is :
+  *   [<byte>name_size][<string>symbol_name][<byte>symbol_section_id][<int>symbol_value]
+  *
+  * If the exported symbol is a constant value (not a label), symbol_section_id = 0xFF
+  *
+  */

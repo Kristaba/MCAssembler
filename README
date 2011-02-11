@@ -1,0 +1,18 @@
+Minimalist Casio Assembler v0.1b
+-------------------------------------
+
+MCA is a complete assembly toolchain targeting the Casio 9860 serie
+and potentially all SH3 architecture (Casio Prizm for instance).
+As its name indicate, it's a *minimalist* assembler, and it doesn't
+pretent to be the best assembler ever.
+
+--------------
+LICENSE
+--------------
+MCA is a free software under the GNU GPL version 3 license, see the
+file LICENSE for more information about it.
+
+--------------
+AUTHORS
+--------------
+Léo Grange (Kristaba), contact : grangeleo(at)gmail(dot)com
